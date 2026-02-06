@@ -1,0 +1,13 @@
+bin/
+obj/
+*.user
+*.suo
+*.sln
+*.cache
+*.pdb
+*.vs/
+*.vscode/
+.git/
+.gitignore
+app.db-shm
+app.db-wal
