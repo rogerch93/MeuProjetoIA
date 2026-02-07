@@ -32,12 +32,19 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// Mapear features/endpoints 
-app.MapGroup("/api")
-   .MapGet("/health", () => Results.Ok(new { status = "Healthy", timestamp = DateTime.UtcNow }));
+// Endpoints básicos soltos (sem grupo desnecessário para debug)
+app.MapGet("/health", () => Results.Ok(new { status = "Healthy", timestamp = DateTime.UtcNow }));
+
+app.MapGet("/debug-env", () => new 
+{ 
+    Environment = app.Environment.EnvironmentName, 
+    Timestamp = DateTime.UtcNow 
+});
 
 // Carregar endpoints de features 
 app.MapHelloWorldEndpoints();  
+
 app.MapMensagensEndpoints();
+
 
 app.Run();
