@@ -8,8 +8,8 @@ services:
    ports:
      - "5126:8080" #Host:Container
    environment:
-     - ASPNETCORE_ENVIRONMENT=Production
-     - Groq__ApiKey=${API_KEY}
+     - ASPNETCORE_ENVIRONMENT=Development
+     - Groq__ApiKey=${GROQ_API_KEY}
      - ConnectionStrings__DefaultConnection=Data Source=/app/app.db
    volumes:
      - ./app.db:/app/app.db # persiste o banco fora do container
