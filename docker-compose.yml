@@ -9,6 +9,10 @@ services:
      - "5126:8080" #Host:Container
    environment:
      - ASPNETCORE_ENVIRONMENT=Development
+   #  - JwtSettings__SecretKey=${JWT_SECRET}
+   #  - JwtSettings__Issuer=MeuProjetoIA
+   #  - JwtSettings__Audience=MeuProjetoIA
+   #  - JwtSettings__ExpiresInMinutes=60
      - Groq__ApiKey=${GROQ_API_KEY}
      - ConnectionStrings__DefaultConnection=Data Source=/app/app.db
    volumes:

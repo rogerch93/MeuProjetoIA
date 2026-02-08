@@ -15,13 +15,7 @@ RUN dotnet restore MeuProjetoIA.csproj \
     --verbosity detailed
 
 # Copia apenas o código necessário (evita copiar bin/obj sujos)
-COPY Program.cs .
-COPY Features/ Features/
-COPY Data/ Data/
-COPY Models/ Models/
-COPY Services/ Services/
-COPY appsettings.json .
-COPY appsettings.Development.json . 
+COPY . .
 
 # Publish sem cache e sem fallback
 RUN dotnet publish MeuProjetoIA.csproj \
