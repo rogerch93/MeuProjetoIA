@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
 
-namespace MeuProjetoIA.Middleware
-{
+namespace MeuProjetoIA.Middleware;
+
     public class ApiKeyMiddleware
     {
         private readonly RequestDelegate _next;
@@ -46,4 +46,3 @@ namespace MeuProjetoIA.Middleware
             await _next(context);
         }
     }
-}
