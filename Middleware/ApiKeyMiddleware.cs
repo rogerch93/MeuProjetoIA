@@ -15,9 +15,12 @@ namespace MeuProjetoIA.Middleware;
 
         public async Task InvokeAsync(HttpContext context)
         {
+            var path = context.Request.Path.Value?.TrimEnd('/').ToLowerInvariant() ?? string.Empty;
             //Endpoints publicos não necessitam de API Key
             if (context.Request.Path.StartsWithSegments("/health") ||
-            context.Request.Path.StartsWithSegments("/debug-env"))
+            context.Request.Path.StartsWithSegments("/debug-env") ||
+            context.Request.Path.StartsWithSegments("/api/auth/login") ||
+            context.Request.Path.StartsWithSegments("/swagger"))
             {
                 await _next(context);
                 return;
@@ -33,7 +36,7 @@ namespace MeuProjetoIA.Middleware;
 
             //Pegar a chave esperada do configuration
             var appSettingsApiKey = context.RequestServices
-                .GetRequiredService<Microsoft.Extensions.Configuration.IConfiguration>()
+                .GetRequiredService<IConfiguration>()
                 .GetValue<string>("ApiKey");
 
             if(appSettingsApiKey == null || !extractedApiKey.Equals(appSettingsApiKey))
