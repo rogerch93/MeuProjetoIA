@@ -88,9 +88,11 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "API IA v1"));
-    app.UseMiddleware<ApiKeyMiddleware>(); // Middleware de API Key só em desenvolvimento para facilitar testes
+    //app.UseMiddleware<ApiKeyMiddleware>(); // Middleware de API Key só em desenvolvimento para facilitar testes
 }
-app.UseMiddleware<ApiKeyMiddleware>();
+//app.UseMiddleware<ApiKeyMiddleware>();
+app.UseAuthentication();
+app.UseAuthorization();
 app.UseHttpsRedirection();
 
 // Endpoints básicos soltos (sem grupo desnecessário para debug)
