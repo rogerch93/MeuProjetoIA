@@ -25,21 +25,54 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
 
-//builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
-//{
- //   var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>()
- //                   ?? throw new InvalidOperationException("JwtSettings não está configurado corretamente.");
- //   options.TokenValidationParameters = new TokenValidationParameters
- //   {
- //       ValidateIssuer = true,
- //       ValidateAudience = true,
- //       ValidateLifetime = true,
- //       ValidateIssuerSigningKey = true,
- //       ValidIssuer = jwtSettings.Issuer,
- //       ValidAudience = jwtSettings.Audience,
- //       IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecuretKey))
-//};
-//});
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+{
+    var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>()
+                    ?? throw new InvalidOperationException("JwtSettings não está configurado corretamente.");
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtSettings.Issuer,
+        ValidAudience = jwtSettings.Audience,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey))
+};
+});
+
+builder.Services.AddSwaggerGen(c =>
+{
+    // Configuração de segurança JWT no swagger
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header usando o esquema Bearer. \r\n\r\n "+
+        "Entre 'Bearer' [espaço] e então seu token gerado no /api/auth/login.\r\n\r\n"+
+        "Exemplo: \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer",
+        BearerFormat = "JWT"
+        });
+
+        c.AddSecurityRequirement(new OpenApiSecurityRequirement
+        {
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                    }
+                },
+                new string[] {}
+            }
+        });
+});
+
+
 
 builder.Services.AddAuthorization();  // Adiciona serviços de autorização (mesmo que não tenhamos políticas específicas ainda)
 
@@ -57,7 +90,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "API IA v1"));
     app.UseMiddleware<ApiKeyMiddleware>(); // Middleware de API Key só em desenvolvimento para facilitar testes
 }
-
+app.UseMiddleware<ApiKeyMiddleware>();
 app.UseHttpsRedirection();
 
 // Endpoints básicos soltos (sem grupo desnecessário para debug)
