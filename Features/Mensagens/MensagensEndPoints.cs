@@ -11,7 +11,8 @@ public static class MensagensEndpoints
     public static void MapMensagensEndpoints(this WebApplication app)
     {
         var group = app.MapGroup("/api/mensagens")
-                    .WithTags("Mensagens");
+                    .WithTags("Mensagens")
+                    .RequireAuthorization();
 
         // GET lista
         group.MapGet("/", async (AppDbContext db) =>
@@ -62,5 +63,6 @@ public static class MensagensEndpoints
             return Results.Created($"/api/mensagens/{mensagem.Id}", mensagem);
         })
         .WithName("GenerateComIA");
+        
     }
 }
