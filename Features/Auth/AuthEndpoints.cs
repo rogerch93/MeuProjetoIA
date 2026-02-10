@@ -4,8 +4,12 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using MeuProjetoIA.Auth;
+using System.Data.Common;
+using MeuProjetoIA.Data;
+using Microsoft.EntityFrameworkCore;
+using MeuProjetoIA.Models;
 
-namespace MeuProjetoIA.Features.Auth;
+namespace MeuProjetoIA.Request.Auth;
 
 public static class AuthEndpoints
 {
@@ -14,11 +18,14 @@ public static class AuthEndpoints
     {
         var group = app.MapGroup("/api/auth").WithTags("Auth");
 
-        
-
-        group.MapPost("/login", async (LoginRequest request, IConfiguration config) =>
+        group.MapPost("/login", async (LoginRequest request, AppDbContext db, IConfiguration config) =>
         {
-
+            var user = db.Users.FirstOrDefault(u => u.Username == request.Username);
+            if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
+            {
+                return Results.Unauthorized();
+            }   
+            
             var section = config.GetSection("JwtSettings");
             if (!section.Exists())
             {
@@ -35,9 +42,6 @@ public static class AuthEndpoints
             {
                 return Results.Unauthorized();
             }
-
-           // var jwtSettings = config.GetSection("JwtSetttings").Get<JwtSettings>()
-            //                ?? throw new InvalidOperationException("JwtSettings não está configurado corretamente.");
 
             var claims = new[]
             {
@@ -59,5 +63,36 @@ public static class AuthEndpoints
             var jwt = new JwtSecurityTokenHandler().WriteToken(token);
             return Results.Ok(new LoginResponse { Token = jwt });
         }).WithName("Login");
+
+        group.MapPost("/register", async(RegisterRequest request, AppDbContext db) =>
+        {
+            if (string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Password))
+            {
+                return Results.BadRequest("Username e password são obrigatórios");
+            }
+
+            if (request.Password.Length < 8)
+            {
+                return Results.BadRequest("Password deve ter pelo menos 8 caracteres");
+            }
+            
+            var existing = await db.Users.AnyAsync(u => u.Username == request.Username);
+            if (existing)
+            {
+                return Results.Conflict("Username já existe");
+            }
+
+            var user = new User
+            {
+                Username = request.Username,
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
+                Role = "User",
+            };
+
+            db.Users.Add(user);
+            await db.SaveChangesAsync();
+
+            return Results.Created($"/api/auth/users/{user.Id}", new { user.Id, user.Username });
+        }).WithName("Register");
     }
 }
