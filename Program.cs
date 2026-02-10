@@ -9,7 +9,7 @@ using MeuProjetoIA.Features.Mensagens;
 using MeuProjetoIA.Services;
 using MeuProjetoIA.Middleware;
 using MeuProjetoIA.Auth;
-using MeuProjetoIA.Features.Auth;
+using MeuProjetoIA.Request.Auth;
 
 
 var builder = WebApplication.CreateBuilder(args);
