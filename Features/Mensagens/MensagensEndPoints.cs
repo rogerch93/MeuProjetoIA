@@ -11,8 +11,8 @@ public static class MensagensEndpoints
     public static void MapMensagensEndpoints(this WebApplication app)
     {
         var group = app.MapGroup("/api/mensagens")
-                    .WithTags("Mensagens")
-                    .RequireAuthorization();
+                    .WithTags("Mensagens");
+                    //.RequireAuthorization();
 
         // GET lista
         group.MapGet("/", async (AppDbContext db) =>

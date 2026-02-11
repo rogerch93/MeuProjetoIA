@@ -82,10 +82,12 @@ public static class AuthEndpoints
                 return Results.Conflict("Username já existe");
             }
 
+            var hash = BCrypt.Net.BCrypt.HashPassword(request.Password);
+
             var user = new User
             {
                 Username = request.Username,
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
+                PasswordHash = hash,
                 Role = "User",
             };
 
