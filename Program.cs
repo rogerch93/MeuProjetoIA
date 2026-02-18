@@ -14,14 +14,21 @@ using MeuProjetoIA.Request.Auth;
 
 var builder = WebApplication.CreateBuilder(args);
 
+//Controllers
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy = null;
+    });
+
 //Serviços
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddHttpClient();  // necessário para IHttpClientFactory
-builder.Services.AddScoped<GroqService>();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "API IA Aprendizado", Version = "v1" });
-});
+builder.Services.AddSwaggerGen();
+
+// Adicionar SQLite + EF Core
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection") 
+                      ?? "Data Source=app.db"));
 
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
 
@@ -41,72 +48,21 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 };
 });
 
-builder.Services.AddSwaggerGen(c =>
-{
-    // Configuração de segurança JWT no swagger
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        Description = "JWT Authorization header usando o esquema Bearer. \r\n\r\n "+
-        "Entre 'Bearer' [espaço] e então seu token gerado no /api/auth/login.\r\n\r\n"+
-        "Exemplo: \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"",
-        Name = "Authorization",
-        In = ParameterLocation.Header,
-        Type = SecuritySchemeType.ApiKey,
-        Scheme = "Bearer",
-        BearerFormat = "JWT"
-        });
-
-        c.AddSecurityRequirement(new OpenApiSecurityRequirement
-        {
-            {
-                new OpenApiSecurityScheme
-                {
-                    Reference = new OpenApiReference
-                    {
-                        Type = ReferenceType.SecurityScheme,
-                        Id = "Bearer"
-                    }
-                },
-                new string[] {}
-            }
-        });
-});
-
-
-
 builder.Services.AddAuthorization();  // Adiciona serviços de autorização (mesmo que não tenhamos políticas específicas ainda)
-
-// Adicionar SQLite + EF Core
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection") 
-                      ?? "Data Source=app.db"));
 
 var app = builder.Build();
 
-// Middleware
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "API IA v1"));
-    //app.UseMiddleware<ApiKeyMiddleware>(); // Middleware de API Key só em desenvolvimento para facilitar testes
+    app.UseSwaggerUI();
 }
-//app.UseMiddleware<ApiKeyMiddleware>();
-app.UseAuthentication();
-app.UseAuthorization();
+
 app.UseHttpsRedirection();
 
-// Endpoints básicos soltos (sem grupo desnecessário para debug)
-app.MapGet("/health", () => Results.Ok(new { status = "Healthy", timestamp = DateTime.UtcNow }));
+app.UseAuthentication();
+app.UseAuthorization();
 
-app.MapGet("/debug-env", () => new 
-{ 
-    Environment = app.Environment.EnvironmentName, 
-    Timestamp = DateTime.UtcNow 
-});
-
-// Carregar endpoints de features 
-app.MapHelloWorldEndpoints();  
-app.MapMensagensEndpoints();
-app.MapAuthEndpoints();
+app.MapControllers();
 
 app.Run();
