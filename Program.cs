@@ -22,8 +22,46 @@ builder.Services.AddControllers()
     });
 
 //Serviços
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<GroqService>();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "MeuProjetoIA",
+        Version= "v1"
+    });
+
+    //Configuração para mostrar o cadeado baerer bi Swagger
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header usando o esquema Bearer.\r\n\r\n" +
+                      "Digite 'Bearer' [espaço] seguido do seu token gerado no /api/auth/login.\r\n\r\n" +
+                      "Exemplo: \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer",
+        BearerFormat = "JWT"
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+           new OpenApiSecurityScheme
+           {
+               Reference = new OpenApiReference
+               {
+                   Type = ReferenceType.SecurityScheme,
+                   Id = "Bearer"
+               }
+           },
+           new string[] {} // esta sendo aplicado para todos os endpoints
+        }
+    });
+
+});
 
 // Adicionar SQLite + EF Core
 builder.Services.AddDbContext<AppDbContext>(options =>
