@@ -4,12 +4,13 @@ using Microsoft.EntityFrameworkCore;
 using MeuProjetoIA.Data;
 using MeuProjetoIA.Models;
 using MeuProjetoIA.Services;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace MeuProjetoIA.Controllers;
 
 [ApiController]
 [Route("api/mensagens")]
-[Authorize] // aqui ja vai proteger todo o controller com jwt
+[Authorize]
 public class MensagensController : ControllerBase
 {
     private readonly AppDbContext _db;
@@ -33,6 +34,7 @@ public class MensagensController : ControllerBase
     }
 
     [HttpPost("ia")]
+    [EnableRateLimiting("fixed")] // esta aplicado o limite chamado fixed
     [Authorize]
     public async Task<IActionResult>GenerateIA([FromBody] MensagemIA request)
     {
