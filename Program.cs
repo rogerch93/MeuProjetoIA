@@ -10,6 +10,8 @@ using MeuProjetoIA.Services;
 using MeuProjetoIA.Middleware;
 using MeuProjetoIA.Auth;
 using MeuProjetoIA.Request.Auth;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -88,6 +90,25 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 
 builder.Services.AddAuthorization();  // Adiciona serviços de autorização (mesmo que não tenhamos políticas específicas ainda)
 
+//Rate limiting
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddFixedWindowLimiter("fixed", opt =>
+    {
+        opt.PermitLimit = 10; // limite de 10 requisições
+        opt.Window = TimeSpan.FromMinutes(1); //por minuto
+        opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        opt.QueueLimit = 5; //fila de espera
+    });
+
+    options.RejectionStatusCode = 429;
+    options.OnRejected = async (context, token) =>
+    {
+        context.HttpContext.Response.Headers.Append("Retry-After", "60");
+        await context.HttpContext.Response.WriteAsync("Muitas requisições. Tente novamente em 1 minuto.");
+    };
+});
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -100,6 +121,7 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseRateLimiter();
 
 app.MapControllers();
 
