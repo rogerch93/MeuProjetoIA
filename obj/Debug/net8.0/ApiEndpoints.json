@@ -1,0 +1,60 @@
+[
+  {
+    "ContainingType": "MeuProjetoIA.Controllers.AuthController",
+    "Method": "Login",
+    "RelativePath": "api/auth/login",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "MeuProjetoIA.Auth.LoginRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MeuProjetoIA.Controllers.AuthController",
+    "Method": "Register",
+    "RelativePath": "api/auth/register",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "req",
+        "Type": "MeuProjetoIA.Request.Auth.RegisterRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MeuProjetoIA.Controllers.MensagensController",
+    "Method": "GetAll",
+    "RelativePath": "api/mensagens",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MeuProjetoIA.Controllers.MensagensController",
+    "Method": "GenerateIA",
+    "RelativePath": "api/mensagens/ia",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "MeuProjetoIA.Models.MensagemIA",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  }
+]
