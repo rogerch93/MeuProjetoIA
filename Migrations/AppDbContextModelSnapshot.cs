@@ -40,7 +40,7 @@ namespace MeuProjetoIA.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Mensagens");
+                    b.ToTable("Mensagens", (string)null);
                 });
 #pragma warning restore 612, 618
         }
