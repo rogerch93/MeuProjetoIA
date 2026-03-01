@@ -1,0 +1,6 @@
+@BoloGestaoAPI_HostAddress = http://localhost:5078
+
+GET {{BoloGestaoAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
